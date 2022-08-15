@@ -33,12 +33,22 @@ class _HomeScreenState extends State<HomeScreen> {
   bool textScanning = false;
   XFile? imageFile;
   String scannedText = '';
-  late TextEditingController base64;
-  final picker = ImagePicker();
-  late File PickedFile;
-  String img = '';
 
-  Future sendImage() async {
+  void getImage(ImageSource source) async {
+    try {
+      final PickedFile = await ImagePicker().pickImage(source: source);
+      if (PickedFile != null) {
+        final bytes = Io.File(PickedFile.path).readAsBytesSync();
+        String img64 = base64Encode(bytes);
+        print(img64);
+        sendImage(img64);
+      } else {}
+    } catch (e) {
+      print("no files selected");
+    }
+  }
+
+  Future sendImage(String img) async {
     var url = Uri.parse("http://172.16.6.212:8000/getImage");
     var strImg = img;
     var data = {
@@ -127,127 +137,219 @@ class _HomeScreenState extends State<HomeScreen> {
             )
           : isScan
               ? Visibility(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      if (textScanning) const CircularProgressIndicator(),
-                      if (!textScanning && imageFile == null)
-                        Container(
-                          width: 300,
-                          height: 300,
-                          color: Colors.grey[300]!,
-                        ),
-                      if (imageFile != null)
-                        Image.file(Io.File(imageFile!.path)),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
+                  child: Center(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        if (textScanning) const CircularProgressIndicator(),
+                        if (!textScanning && imageFile == null)
                           Container(
-                            margin: const EdgeInsets.symmetric(horizontal: 5),
-                            padding: const EdgeInsets.only(top: 10),
-                            child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                primary: Colors.white,
-                                onPrimary: Colors.grey,
-                                shadowColor: Colors.grey[400],
-                                elevation: 10,
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8.0)),
-                              ),
-                              onPressed: () async {
-                                // final PickedFile = await picker.getImage(
-                                //     source: ImageSource.gallery);
-                                final PickedFile = await ImagePicker()
-                                    .pickImage(source: ImageSource.gallery);
-                                setState(() {
-                                  if (PickedFile != null) {
-                                    // base64.text = ImageUtils.fileToBase64(
-                                    //     Io.File(PickedFile.path));
-                                    final bytes = Io.File(PickedFile.path)
-                                        .readAsBytesSync();
-                                    String img64 = base64Encode(bytes);
-                                    sendImage();
-                                    img = img64;
-                                    print(img64);
-                                    print(img64.length);
+                            width: 300,
+                            height: 300,
+                            color: Colors.grey[300]!,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.image,
+                                  size: 50,
+                                  color: Colors.grey,
+                                ),
+                                SizedBox(
+                                  height: 10,
+                                ),
+                                Text(
+                                  "Select a prescription to scan",
+                                  style: TextStyle(
+                                      fontSize: 22, color: Colors.grey),
+                                )
+                              ],
+                            ),
+                          ),
+                        if (imageFile != null)
+                          Image.file(Io.File(imageFile!.path)),
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            SizedBox(
+                              height: 20,
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: defaultPadding,
+                                  horizontal: defaultPadding),
+                              child: SizedBox(
+                                width: double.infinity,
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    getImage(ImageSource.gallery);
+                                  },
+                                  // onPressed: () async {
+                                  //   // final PickedFile = await picker.getImage(
+                                  //   //     source: ImageSource.gallery);
+                                  //   final PickedFile = await ImagePicker()
+                                  //       .pickImage(source: ImageSource.gallery);
+                                  //   setState(() {
+                                  //     if (PickedFile != null) {
+                                  //       final bytes = Io.File(PickedFile.path)
+                                  //           .readAsBytesSync();
+                                  //       String img64 = base64Encode(bytes);
+                                  //       sendImage();
+                                  //       img = img64;
+                                  //       print(img64);
+                                  //       print(img64.length);
 
-                                    // print(base64.text);
-                                  } else {
-                                    print("No images selected");
-                                  }
-                                });
-                                // getImage(ImageSource.gallery);
-                              },
-                              child: Container(
-                                margin: const EdgeInsets.symmetric(
-                                    vertical: 5, horizontal: 5),
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(
-                                      Icons.image,
-                                      size: 30,
+                                  //       // print(base64.text);
+                                  //     } else {
+                                  //       print("No images selected");
+                                  //     }
+                                  //   });
+                                  //   // getImage(ImageSource.gallery);
+                                  // },
+                                  style: TextButton.styleFrom(
+                                    // backgroundColor: Color(0xFF6CD8D1),
+                                    elevation: 5,
+                                    backgroundColor: primaryColor,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(15),
+                                      side: BorderSide(color: primaryColor),
                                     ),
-                                    Text(
-                                      "Gallery",
-                                      style: TextStyle(
-                                          fontSize: 13,
-                                          color: Colors.grey[600]),
-                                    )
-                                  ],
+                                  ),
+                                  child: Text("Select from gallery"),
                                 ),
                               ),
                             ),
-                          ),
-                          Container(
-                            margin: const EdgeInsets.symmetric(horizontal: 5),
-                            padding: const EdgeInsets.only(top: 10),
-                            child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                primary: Colors.white,
-                                onPrimary: Colors.grey,
-                                shadowColor: Colors.grey[400],
-                                elevation: 10,
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8.0)),
-                              ),
-                              onPressed: () {
-                                // getImage();
-                                // getImage(ImageSource.camera);
-                              },
-                              child: Container(
-                                margin: const EdgeInsets.symmetric(
-                                    vertical: 5, horizontal: 5),
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(
-                                      Icons.camera_alt,
-                                      size: 30,
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: defaultPadding,
+                                  horizontal: defaultPadding),
+                              child: SizedBox(
+                                width: double.infinity,
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    getImage(ImageSource.camera);
+                                  },
+                                  style: TextButton.styleFrom(
+                                    // backgroundColor: Color(0xFF6CD8D1),
+                                    elevation: 5,
+                                    backgroundColor: primaryColor,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(15),
+                                      side: BorderSide(color: primaryColor),
                                     ),
-                                    Text(
-                                      "Camera",
-                                      style: TextStyle(
-                                          fontSize: 13,
-                                          color: Colors.grey[600]),
-                                    )
-                                  ],
+                                  ),
+                                  child: Text("Capture using camera"),
                                 ),
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      Container(
-                        child: Text(
-                          scannedText,
-                          style: TextStyle(fontSize: 16),
+                            // Container(
+                            //   margin: const EdgeInsets.symmetric(horizontal: 5),
+                            //   padding: const EdgeInsets.only(top: 20),
+                            //   child: ElevatedButton(
+                            //     style: ElevatedButton.styleFrom(
+                            //       primary: Colors.white,
+                            //       onPrimary: Colors.grey,
+                            //       shadowColor: Colors.grey[400],
+                            //       elevation: 10,
+                            //       shape: RoundedRectangleBorder(
+                            //           borderRadius: BorderRadius.circular(8.0)),
+                            //     ),
+                            //     onPressed: () async {
+                            //       // final PickedFile = await picker.getImage(
+                            //       //     source: ImageSource.gallery);
+                            //       final PickedFile = await ImagePicker()
+                            //           .pickImage(source: ImageSource.gallery);
+                            //       setState(() {
+                            //         if (PickedFile != null) {
+                            //           // base64.text = ImageUtils.fileToBase64(
+                            //           //     Io.File(PickedFile.path));
+                            //           final bytes = Io.File(PickedFile.path)
+                            //               .readAsBytesSync();
+                            //           String img64 = base64Encode(bytes);
+                            //           sendImage();
+                            //           img = img64;
+                            //           print(img64);
+                            //           print(img64.length);
+
+                            //           // print(base64.text);
+                            //         } else {
+                            //           print("No images selected");
+                            //         }
+                            //       });
+                            //       // getImage(ImageSource.gallery);
+                            //     },
+                            //     child: Container(
+                            //       margin: const EdgeInsets.symmetric(
+                            //           vertical: 1, horizontal: 120),
+                            //       child: Column(
+                            //         mainAxisSize: MainAxisSize.min,
+                            //         children: [
+                            //           Icon(
+                            //             Icons.image,
+                            //             size: 30,
+                            //           ),
+                            //           Text(
+                            //             "Gallery",
+                            //             style: TextStyle(
+                            //                 fontSize: 13,
+                            //                 color: Colors.grey[600]),
+                            //           )
+                            //         ],
+                            //       ),
+                            //     ),
+                            //   ),
+                            // ),
+                            // Container(
+                            //   margin: const EdgeInsets.symmetric(horizontal: 5),
+                            //   padding: const EdgeInsets.only(top: 10),
+                            //   child: ElevatedButton(
+                            //     style: ElevatedButton.styleFrom(
+                            //       primary: Colors.white,
+                            //       onPrimary: Colors.grey,
+                            //       shadowColor: Colors.grey[400],
+                            //       elevation: 10,
+                            //       shape: RoundedRectangleBorder(
+                            //           borderRadius: BorderRadius.circular(8.0)),
+                            //     ),
+                            //     onPressed: () {
+                            //       // getImage();
+                            //       // getImage(ImageSource.camera);
+                            //     },
+                            //     child: Container(
+                            //       margin: const EdgeInsets.symmetric(
+                            //           vertical: 5, horizontal: 5),
+                            //       child: Column(
+                            //         mainAxisSize: MainAxisSize.min,
+                            //         children: [
+                            //           Icon(
+                            //             Icons.camera_alt,
+                            //             size: 30,
+                            //           ),
+                            //           Text(
+                            //             "Camera",
+                            //             style: TextStyle(
+                            //                 fontSize: 13,
+                            //                 color: Colors.grey[600]),
+                            //           )
+                            //         ],
+                            //       ),
+                            //     ),
+                            //   ),
+                            // ),
+                          ],
                         ),
-                      )
-                    ],
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        Container(
+                          child: Text(
+                            scannedText,
+                            style: TextStyle(fontSize: 16),
+                          ),
+                        )
+                      ],
+                    ),
                   ),
                 )
               : isPrescription
