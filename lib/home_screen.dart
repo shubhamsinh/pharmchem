@@ -8,12 +8,22 @@ import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
+import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart';
 import 'package:pharmchem/components/navbar.dart';
 import 'package:pharmchem/constants.dart';
+import 'package:pharmchem/scanResult_screen.dart';
 import 'package:pharmchem/scanning_screen.dart';
 import 'package:http/http.dart' as http;
 // import 'package:image_utils_class/image_utils_class.dart';
+
+class ScannedText {
+  static String predictedText = '';
+  static String bas64Img = '';
+  static late File cropppedImg;
+}
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -33,30 +43,130 @@ class _HomeScreenState extends State<HomeScreen> {
   bool textScanning = false;
   XFile? imageFile;
   String scannedText = '';
+  String finalImgPath = '';
+  late File finalImg;
+  String finalresponse = '';
 
   void getImage(ImageSource source) async {
     try {
       final PickedFile = await ImagePicker().pickImage(source: source);
       if (PickedFile != null) {
-        final bytes = Io.File(PickedFile.path).readAsBytesSync();
-        String img64 = base64Encode(bytes);
-        print(img64);
-        sendImage(img64);
-      } else {}
+        cropSquare(PickedFile.path);
+        // if (finalImg != '') {
+        //   final bytes = Io.File(finalImg).readAsBytesSync();
+        //   String img64 = base64Encode(bytes);
+        //   print(img64);
+        //   sendImage(img64);
+        // }
+        // final bytes = Io.File(finalImg).readAsBytesSync();
+        // String img64 = base64Encode(bytes);
+        // print(img64);
+        // sendImage(img64);
+      } else {
+        print("No files selected");
+      }
     } catch (e) {
       print("no files selected");
     }
   }
 
+  late BuildContext next;
+  Future<String> cropSquare(String srcFilePath) async {
+    CroppedFile? image = await ImageCropper().cropImage(
+      sourcePath: srcFilePath,
+      uiSettings: [
+        AndroidUiSettings(
+          statusBarColor: primaryColor,
+          toolbarColor: primaryColor,
+          toolbarTitle: 'Crop Image',
+          toolbarWidgetColor: Colors.white,
+        ),
+      ],
+      aspectRatioPresets: [
+        CropAspectRatioPreset.square,
+        CropAspectRatioPreset.ratio3x2,
+        CropAspectRatioPreset.original,
+        CropAspectRatioPreset.ratio4x3,
+        CropAspectRatioPreset.ratio16x9
+      ],
+    );
+    String destFilePath = '';
+    if (image != null) {
+      destFilePath = join((await getTemporaryDirectory()).path,
+          '${DateTime.now().millisecondsSinceEpoch}.png');
+      File finalImage = await File(image.path).copy(destFilePath);
+      finalImgPath = finalImage.path;
+      finalImg = finalImage;
+      ScannedText.cropppedImg = finalImg;
+
+      base64Image(finalImgPath);
+    }
+    return destFilePath;
+  }
+
+  void base64Image(String imagePath) {
+    final bytes = Io.File(finalImgPath).readAsBytesSync();
+    String img64 = base64Encode(bytes);
+    ScannedText.bas64Img = img64;
+    print(img64);
+    // confirmImage();
+
+    sendImage(img64);
+  }
+
+  var finaltext = '';
   Future sendImage(String img) async {
-    var url = Uri.parse("http://172.16.6.212:8000/getImage");
+    var url = Uri.parse("http://192.168.207.86:8000/getImage");
     var strImg = img;
     var data = {
       "image": strImg,
     };
     var response = await http.post(url, body: data);
     print(response);
+    print(response.body);
+    if (response.statusCode == 200) {
+      // If the server did return a 200 OK response,
+      // then parse the JSON.
+      final jsonOP = json.decode(response.body);
+      finaltext = jsonOP["text"];
+      // ScannedText finaltext1 = new ScannedText();
+      ScannedText.predictedText = finaltext;
+      // finalresponse = jsonDecode(finaltext);
+
+      // = Album.fromJson(jsonDecode(response.body)) as String;
+      setState(() {
+        Navigator.push(
+            next,
+            MaterialPageRoute(
+              builder: (context) => const scanResult(),
+            ));
+      });
+
+      print('response recieved');
+
+      // return Album.fromJson(jsonDecode(response.body));
+    } else {
+      // If the server did not return a 200 OK response,
+      // then throw an exception.
+      throw Exception('Failed to load album');
+    }
   }
+
+  // Future<Album> getRecognisedText() async {
+  //   final response =
+  //       await http.post(Uri.parse('http://192.168.207.86:8000/getImage'));
+  //   print("----------------");
+  //   print(response.body);
+  //   if (response.statusCode == 200) {
+  //     // If the server did return a 200 OK response,
+  //     // then parse the JSON.
+  //     return Album.fromJson(jsonDecode(response.body));
+  //   } else {
+  //     // If the server did not return a 200 OK response,
+  //     // then throw an exception.
+  //     throw Exception('Failed to load album');
+  //   }
+  // }
 
   // void getImage(ImageSource source) async {
   // void getImage() {
@@ -88,6 +198,14 @@ class _HomeScreenState extends State<HomeScreen> {
   //       _currPageValue = pageController.page!;
   //     });
   //   });
+  // }
+
+  // late Future<Album> futureAlbum;
+
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   futureAlbum = getRecognisedText();
   // }
 
   @override
@@ -147,6 +265,9 @@ class _HomeScreenState extends State<HomeScreen> {
                           Container(
                             width: 300,
                             height: 300,
+                            // decoration: BoxDecoration(
+                            //     // image: DecorationImage(
+                            //     //     image: NetworkImage('finalImg'))),
                             color: Colors.grey[300]!,
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -167,8 +288,6 @@ class _HomeScreenState extends State<HomeScreen> {
                               ],
                             ),
                           ),
-                        if (imageFile != null)
-                          Image.file(Io.File(imageFile!.path)),
                         Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -183,6 +302,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 width: double.infinity,
                                 child: ElevatedButton(
                                   onPressed: () {
+                                    next = context;
                                     getImage(ImageSource.gallery);
                                   },
                                   // onPressed: () async {
@@ -343,10 +463,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           height: 20,
                         ),
                         Container(
-                          child: Text(
-                            scannedText,
-                            style: TextStyle(fontSize: 16),
-                          ),
+                          child: Text(finaltext),
                         )
                       ],
                     ),
