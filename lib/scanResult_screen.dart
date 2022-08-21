@@ -26,37 +26,39 @@ class _scanResultState extends State<scanResult> {
       appBar: AppBar(
         title: Text('Scan Result'),
       ),
-      body: Column(
-        children: [
-          Center(
-            child: Column(
-              children: [
-                SizedBox(
-                  height: 40,
-                ),
-                Text(
-                  "Your prescription",
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30),
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                Image.file(ScannedText.cropppedImg),
-                SizedBox(
-                  height: 40,
-                ),
-                Text(
-                  "Scanned text",
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30),
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                Text(ScannedText.predictedText),
-              ],
-            ),
-          )
-        ],
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Center(
+              child: Column(
+                children: [
+                  SizedBox(
+                    height: 40,
+                  ),
+                  Text(
+                    "Your prescription",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30),
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Image.file(ScannedText.cropppedImg),
+                  SizedBox(
+                    height: 40,
+                  ),
+                  Text(
+                    "Scanned text",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30),
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Text(ScannedText.predictedText),
+                ],
+              ),
+            )
+          ],
+        ),
       ),
     );
   }

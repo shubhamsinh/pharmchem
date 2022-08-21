@@ -75,13 +75,14 @@ class _SignInScreenState extends State<SignInScreen> {
                       keyboardType: TextInputType.emailAddress,
                       decoration: InputDecoration(
                         prefixIcon: Icon(Icons.person),
-                        labelText: "First Name",
+                        labelText: "Email",
                         // labelStyle: TextStyle(fontSize: 20),
                         border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(30),
                             borderSide:
                                 BorderSide(color: Colors.green, width: 2)),
                       ),
+                      textInputAction: TextInputAction.next,
                     ),
                     const SizedBox(height: defaultPadding),
                     TextField(
@@ -109,6 +110,7 @@ class _SignInScreenState extends State<SignInScreen> {
                         // labelText: "password",
                         // alignLabelWithHint: true,
                       ),
+                      textInputAction: TextInputAction.done,
                     ),
                     const SizedBox(height: defaultPadding),
                     // SignInForm(formKey: _formKey),

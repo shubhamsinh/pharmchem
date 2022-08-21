@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io' as Io;
 import 'dart:io';
+import 'dart:async';
 
 // import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
@@ -10,13 +11,16 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:lottie/lottie.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart';
 import 'package:pharmchem/components/navbar.dart';
 import 'package:pharmchem/constants.dart';
+import 'package:pharmchem/database.dart';
 import 'package:pharmchem/scanResult_screen.dart';
 import 'package:pharmchem/scanning_screen.dart';
 import 'package:http/http.dart' as http;
+import 'package:sqflite/sqflite.dart';
 // import 'package:image_utils_class/image_utils_class.dart';
 
 class ScannedText {
@@ -202,11 +206,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // late Future<Album> futureAlbum;
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   futureAlbum = getRecognisedText();
-  // }
+  late DB db;
+
+  @override
+  void initState() {
+    super.initState();
+    db = DB();
+  }
 
   @override
   void dispose() {
@@ -216,32 +222,248 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("PharmChem"),
-        backgroundColor: primaryColor,
-        // backgroundColor: Colors.white,
-        // foregroundColor: Colors.black,
-        centerTitle: true,
-        elevation: 0,
-        // automaticallyImplyLeading: false,
-      ),
+      // appBar: AppBar(
+      //   title: Text("PharmChem"),
+      //   backgroundColor: primaryColor,
+      //   // backgroundColor: Colors.white,
+      //   // foregroundColor: Colors.black,
+      //   centerTitle: true,
+      //   elevation: 0,
+      //   // automaticallyImplyLeading: false,
+      // ),
       body: isHome
           ? Visibility(
               visible: isHome,
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.only(top: 20),
+                  SafeArea(
                     child: Container(
-                      height: 170,
-                      child: PageView.builder(
-                          controller: pageController,
-                          itemCount: 4,
-                          itemBuilder: (context, position) {
-                            return _buildPageItem(position);
-                          }),
+                      color: Colors.white,
+                      child: Padding(
+                        padding:
+                            const EdgeInsets.only(left: 15, right: 15, top: 17),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Hello, Shubham!',
+                                  style: TextStyle(
+                                      fontSize: 25,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                SizedBox(
+                                  height: 5,
+                                ),
+                                Text(
+                                  'How are you feeling today?',
+                                  style: TextStyle(
+                                      color: Colors.grey, fontSize: 15),
+                                ),
+                              ],
+                            ),
+                            CircleAvatar(
+                              backgroundImage:
+                                  AssetImage('assets/images/shubham.jpg'),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
+                  Container(
+                    color: Colors.white,
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 20, bottom: 20),
+                      child: Container(
+                        color: Colors.white,
+                        height: 220,
+                        child: PageView.builder(
+                            controller: pageController,
+                            itemCount: 2,
+                            itemBuilder: (context, position) {
+                              return _buildPageItem(position);
+                            }),
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 15,
+                  ),
+                  Padding(
+                    padding:
+                        const EdgeInsets.only(left: 20, top: 10, bottom: 15),
+                    child: Text(
+                      "How can we help you?",
+                      style:
+                          TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  Row(
+                    children: [
+                      Container(
+                        margin: EdgeInsets.only(left: 20),
+                        height: 110,
+                        width: 110,
+                        decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(15)),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.document_scanner_outlined,
+                              size: 30,
+                              color: Colors.blue,
+                            ),
+                            SizedBox(
+                              height: 5,
+                            ),
+                            Text(
+                              'Scan',
+                              style: TextStyle(color: Colors.blue),
+                            ),
+                            Text(
+                              'prescription',
+                              style: TextStyle(color: Colors.blue),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        margin: EdgeInsets.only(left: 20),
+                        height: 110,
+                        width: 110,
+                        decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(15)),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.list,
+                              size: 30,
+                              color: Colors.blue,
+                            ),
+                            SizedBox(
+                              height: 5,
+                            ),
+                            Text(
+                              'View',
+                              style: TextStyle(color: Colors.blue),
+                            ),
+                            Text(
+                              'prescription',
+                              style: TextStyle(color: Colors.blue),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        margin: EdgeInsets.only(left: 20),
+                        height: 110,
+                        width: 110,
+                        decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(15)),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.person_outline_outlined,
+                              size: 30,
+                              color: Colors.blue,
+                            ),
+                            SizedBox(
+                              height: 5,
+                            ),
+                            Text(
+                              'Your',
+                              style: TextStyle(color: Colors.blue),
+                            ),
+                            Text(
+                              'profile',
+                              style: TextStyle(color: Colors.blue),
+                            ),
+                          ],
+                        ),
+                      )
+                    ],
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(
+                        left: 20, top: 20, bottom: 15, right: 20),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "For today",
+                          style: TextStyle(
+                              fontSize: 22, fontWeight: FontWeight.bold),
+                        ),
+                        Text('View all',
+                            style: TextStyle(
+                              fontSize: 16,
+                            )),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 20, right: 20),
+                    child: Container(
+                      decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(15)),
+                      height: 100,
+                      width: 400,
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 10, right: 10),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Image.asset(
+                              'assets/images/pill.jpg',
+                              height: 100,
+                            ),
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Crocin 650",
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                SizedBox(
+                                  height: 5,
+                                ),
+                                Text(
+                                  "03:00 PM • After Eating",
+                                  style: TextStyle(color: Colors.grey),
+                                ),
+                              ],
+                            ),
+                            Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(6),
+                                color: Color.fromARGB(255, 225, 244, 253),
+                              ),
+                              height: 32,
+                              width: 32,
+                              child: Icon(
+                                Icons.arrow_forward_ios,
+                                color: Colors.blue,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  )
                   // new DotsIndicator(
                   //   dotsCount: 4,
                   //   position: _currPageValue,
@@ -262,32 +484,39 @@ class _HomeScreenState extends State<HomeScreen> {
                       children: [
                         if (textScanning) const CircularProgressIndicator(),
                         if (!textScanning && imageFile == null)
-                          Container(
-                            width: 300,
-                            height: 300,
-                            // decoration: BoxDecoration(
-                            //     // image: DecorationImage(
-                            //     //     image: NetworkImage('finalImg'))),
-                            color: Colors.grey[300]!,
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.image,
-                                  size: 50,
-                                  color: Colors.grey,
-                                ),
-                                SizedBox(
-                                  height: 10,
-                                ),
-                                Text(
-                                  "Select a prescription to scan",
-                                  style: TextStyle(
-                                      fontSize: 22, color: Colors.grey),
-                                )
-                              ],
-                            ),
-                          ),
+                          // Lottie.network(
+                          //     'https://assets10.lottiefiles.com/packages/lf20_tutvdkg0.json'),
+                          Lottie.asset('assets/animations/prescription.json'),
+                        Text(
+                          "Select your prescription to scan",
+                          style: TextStyle(fontSize: 20),
+                        ),
+                        // Container(
+                        //   width: 300,
+                        //   height: 300,
+                        //   // decoration: BoxDecoration(
+                        //   //     // image: DecorationImage(
+                        //   //     //     image: NetworkImage('finalImg'))),
+                        //   color: Colors.grey[300]!,
+                        //   child: Column(
+                        //     mainAxisAlignment: MainAxisAlignment.center,
+                        //     children: [
+                        //       Icon(
+                        //         Icons.image,
+                        //         size: 50,
+                        //         color: Colors.grey,
+                        //       ),
+                        //       SizedBox(
+                        //         height: 10,
+                        //       ),
+                        //       Text(
+                        //         "Select a prescription to scan",
+                        //         style: TextStyle(
+                        //             fontSize: 22, color: Colors.grey),
+                        //       )
+                        //     ],
+                        //   ),
+                        // ),
                         Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -459,12 +688,12 @@ class _HomeScreenState extends State<HomeScreen> {
                             // ),
                           ],
                         ),
-                        const SizedBox(
-                          height: 20,
-                        ),
-                        Container(
-                          child: Text(finaltext),
-                        )
+                        // const SizedBox(
+                        //   height: 20,
+                        // ),
+                        // // Container(
+                        // //   child: Text(finaltext),
+                        // // )
                       ],
                     ),
                   ),
@@ -614,38 +843,169 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildPageItem(int index) {
     return Stack(children: [
       Container(
-        child: Row(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
+        child: index.isEven
+            ? Row(
                 children: [
-                  Text(
-                    "Can't read your Prescriptions ?\nDon't worry\nPharmChem is here for you",
-                    style: TextStyle(
-                      fontSize: 17.4,
-                      color: Colors.white,
-                      letterSpacing: 1,
+                  // Lottie.network(
+                  //     "https://assets3.lottiefiles.com/packages/lf20_kaelaowc.json",
+                  //     height: 200),
+                  Lottie.asset('assets/animations/textRecognition.json',
+                      height: 200),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // SizedBox(
+                        //   height: 10,
+                        // ),
+                        Text(
+                          "Easily convert your",
+                          style: TextStyle(fontSize: 20, color: Colors.white),
+                        ),
+                        SizedBox(
+                          height: 3,
+                        ),
+                        Text(
+                          "Prescription",
+                          style: TextStyle(
+                            fontSize: 24,
+                            color: primaryColor,
+                          ),
+                        ),
+                        SizedBox(
+                          height: 3,
+                        ),
+                        Text(
+                          "into Text",
+                          style: TextStyle(fontSize: 20, color: Colors.white),
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        // Padding(
+                        //   padding: const EdgeInsets.symmetric(
+                        //       vertical: 20, horizontal: 5),
+                        //   child: SizedBox(
+                        //     width: 145,
+                        //     child: ElevatedButton(
+                        //       onPressed: () {
+                        //         getImage(ImageSource.camera);
+                        //         // isScan = true;
+                        //       },
+                        //       style: TextButton.styleFrom(
+                        //         // backgroundColor: Color(0xFF6CD8D1),
+                        //         // elevation: 5,
+                        //         backgroundColor: primaryColor,
+                        //         shape: RoundedRectangleBorder(
+                        //           borderRadius: BorderRadius.circular(10),
+                        //           side: BorderSide(color: Colors.white),
+                        //         ),
+                        //       ),
+                        //       child: Text("Try it now!!"),
+                        //     ),
+                        //   ),
+                        // ),
+
+                        // Text("made easy"),
+                      ],
                     ),
                   ),
-                  SizedBox(
-                    height: 15,
+
+                  // Image.asset("assets/images/Asma_Khan.png"),
+                ],
+              )
+            : Row(
+                children: [
+                  // Lottie.network(
+                  //     "https://assets1.lottiefiles.com/packages/lf20_96cnyxkh.json",
+                  //     height: 200),
+                  Lottie.asset('assets/animations/security.json', height: 205),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // SizedBox(
+                        //   height: 10,
+                        // ),
+                        Text(
+                          "All of your medical",
+                          style: TextStyle(
+                            fontSize: 20,
+                            color: Colors.white,
+                          ),
+                        ),
+                        SizedBox(
+                          height: 3,
+                        ),
+                        Text(
+                          "information stays",
+                          style: TextStyle(
+                            fontSize: 20,
+                            color: Colors.white,
+                          ),
+                        ),
+                        SizedBox(
+                          height: 3,
+                        ),
+                        Row(
+                          children: [
+                            Text(
+                              "SAFE",
+                              textAlign: TextAlign.start,
+                              style: TextStyle(
+                                fontSize: 22,
+                                color: Colors.lightGreen,
+                              ),
+                            ),
+                            Text(
+                              " Here",
+                              style: TextStyle(
+                                fontSize: 20,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        SizedBox(
+                          height: 10,
+                        ),
+                        // Padding(
+                        //   padding:
+                        //       const EdgeInsets.symmetric(vertical: 20, horizontal: 5),
+                        //   child: SizedBox(
+                        //     width: 145,
+                        //     child: ElevatedButton(
+                        //       onPressed: () {
+                        //         getImage(ImageSource.camera);
+                        //         // isScan = true;
+                        //       },
+                        //       style: TextButton.styleFrom(
+                        //         // backgroundColor: Color(0xFF6CD8D1),
+                        //         // elevation: 5,
+                        //         backgroundColor: primaryColor,
+                        //         shape: RoundedRectangleBorder(
+                        //           borderRadius: BorderRadius.circular(10),
+                        //           side: BorderSide(color: Colors.white),
+                        //         ),
+                        //       ),
+                        //       child: Text("Try it now!!"),
+                        //     ),
+                        //   ),
+                        // ),
+
+                        // Text("made easy"),
+                      ],
+                    ),
                   ),
-                  // SvgPicture.asset(
-                  //   "assets/icons/Psychiatrist.svg",
-                  // ),
-                  Text(
-                    "Now you need to just          \nTap \nScan \nRead",
-                    style: TextStyle(
-                        fontSize: 20, color: Colors.white, letterSpacing: 1),
-                  ),
-                  // Text("We are here for you"),
+
+                  // Image.asset("assets/images/Asma_Khan.png"),
                 ],
               ),
-            ),
-            Image.asset("assets/images/Asma_Khan.png"),
-          ],
-        ),
         height: 220,
         margin: EdgeInsets.only(left: 5, right: 5),
         decoration: BoxDecoration(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:lottie/lottie.dart';
 import 'package:pharmchem/constants.dart';
 import 'package:pharmchem/signin_screen.dart';
 import 'package:pharmchem/signup_screen.dart';
@@ -25,15 +26,21 @@ class WelcomeScreen extends StatelessWidget {
                   // SvgPicture.asset(
                   //   "assets/images/Pharm-Chem_LOGO.jpeg",
                   // ),
-                  Image.asset("assets/images/Pharm_Chem_LOGO.png", height: 300),
-                  // Text(
-                  //   "PharmChem",
-                  //   style: TextStyle(
-                  //       fontSize: 35,
-                  //       fontWeight: FontWeight.bold,
-                  //       color: Colors.white,
-                  //       letterSpacing: 2),
-                  // ),
+                  // Lottie.network(
+                  //     "https://assets4.lottiefiles.com/packages/lf20_go0wc4l3.json"),
+                  Lottie.asset('assets/animations/landingAnimation.json'),
+                  // Lottie.network(
+                  //     "https://assets5.lottiefiles.com/packages/lf20_ecvwbhww.json"),
+                  // Text("PharmChem"),
+                  // Image.asset("assets/images/Pharm_Chem_LOGO.png", height: 300),
+                  Text(
+                    "PharmChem",
+                    style: TextStyle(
+                        fontSize: 40,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        letterSpacing: 2),
+                  ),
                   Spacer(),
                   // As you can see we need more paddind on our btn
                   SizedBox(
