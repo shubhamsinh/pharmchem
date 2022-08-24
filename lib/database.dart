@@ -11,7 +11,7 @@ class DB {
         await database.execute("""
           CREATE TABLE MyTable(
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            image FILE NOT NULL,
+            image TEXT NOT NULL,
             ScannedText TEXT NOT NULL
           )
           """);
@@ -24,5 +24,11 @@ class DB {
     final Database db = await initDB();
     db.insert("MyTable", prescription.toMap());
     return true;
+  }
+
+  Future<List<Prescription>> getData() async {
+    final Database db = await initDB();
+    final List<Map<String, Object?>> datas = await db.query("MyTable");
+    return datas.map((e) => Prescription.fromMap(e)).toList();
   }
 }

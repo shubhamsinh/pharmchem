@@ -14,6 +14,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:lottie/lottie.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart';
+import 'package:pharmchem/DataModel.dart';
 import 'package:pharmchem/components/navbar.dart';
 import 'package:pharmchem/constants.dart';
 import 'package:pharmchem/database.dart';
@@ -120,7 +121,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   var finaltext = '';
   Future sendImage(String img) async {
-    var url = Uri.parse("http://192.168.207.86:8000/getImage");
+    var url = Uri.parse("http://192.168.188.213:8000/getImage");
     var strImg = img;
     var data = {
       "image": strImg,
@@ -206,12 +207,23 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // late Future<Album> futureAlbum;
 
+  List<Prescription> datas = [];
+
   late DB db;
+  bool fetching = true;
 
   @override
   void initState() {
     super.initState();
     db = DB();
+    getData();
+  }
+
+  void getData() async {
+    datas = await db.getData();
+    setState(() {
+      fetching = false;
+    });
   }
 
   @override
@@ -234,245 +246,247 @@ class _HomeScreenState extends State<HomeScreen> {
       body: isHome
           ? Visibility(
               visible: isHome,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SafeArea(
-                    child: Container(
-                      color: Colors.white,
-                      child: Padding(
-                        padding:
-                            const EdgeInsets.only(left: 15, right: 15, top: 17),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Hello, Shubham!',
-                                  style: TextStyle(
-                                      fontSize: 25,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                                SizedBox(
-                                  height: 5,
-                                ),
-                                Text(
-                                  'How are you feeling today?',
-                                  style: TextStyle(
-                                      color: Colors.grey, fontSize: 15),
-                                ),
-                              ],
-                            ),
-                            CircleAvatar(
-                              backgroundImage:
-                                  AssetImage('assets/images/shubham.jpg'),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  Container(
-                    color: Colors.white,
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 20, bottom: 20),
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SafeArea(
                       child: Container(
                         color: Colors.white,
-                        height: 220,
-                        child: PageView.builder(
-                            controller: pageController,
-                            itemCount: 2,
-                            itemBuilder: (context, position) {
-                              return _buildPageItem(position);
-                            }),
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    height: 15,
-                  ),
-                  Padding(
-                    padding:
-                        const EdgeInsets.only(left: 20, top: 10, bottom: 15),
-                    child: Text(
-                      "How can we help you?",
-                      style:
-                          TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  Row(
-                    children: [
-                      Container(
-                        margin: EdgeInsets.only(left: 20),
-                        height: 110,
-                        width: 110,
-                        decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(15)),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.document_scanner_outlined,
-                              size: 30,
-                              color: Colors.blue,
-                            ),
-                            SizedBox(
-                              height: 5,
-                            ),
-                            Text(
-                              'Scan',
-                              style: TextStyle(color: Colors.blue),
-                            ),
-                            Text(
-                              'prescription',
-                              style: TextStyle(color: Colors.blue),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Container(
-                        margin: EdgeInsets.only(left: 20),
-                        height: 110,
-                        width: 110,
-                        decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(15)),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.list,
-                              size: 30,
-                              color: Colors.blue,
-                            ),
-                            SizedBox(
-                              height: 5,
-                            ),
-                            Text(
-                              'View',
-                              style: TextStyle(color: Colors.blue),
-                            ),
-                            Text(
-                              'prescription',
-                              style: TextStyle(color: Colors.blue),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Container(
-                        margin: EdgeInsets.only(left: 20),
-                        height: 110,
-                        width: 110,
-                        decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(15)),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.person_outline_outlined,
-                              size: 30,
-                              color: Colors.blue,
-                            ),
-                            SizedBox(
-                              height: 5,
-                            ),
-                            Text(
-                              'Your',
-                              style: TextStyle(color: Colors.blue),
-                            ),
-                            Text(
-                              'profile',
-                              style: TextStyle(color: Colors.blue),
-                            ),
-                          ],
-                        ),
-                      )
-                    ],
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(
-                        left: 20, top: 20, bottom: 15, right: 20),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "For today",
-                          style: TextStyle(
-                              fontSize: 22, fontWeight: FontWeight.bold),
-                        ),
-                        Text('View all',
-                            style: TextStyle(
-                              fontSize: 16,
-                            )),
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 20, right: 20),
-                    child: Container(
-                      decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(15)),
-                      height: 100,
-                      width: 400,
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 10, right: 10),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Image.asset(
-                              'assets/images/pill.jpg',
-                              height: 100,
-                            ),
-                            Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Crocin 650",
-                                  style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                                SizedBox(
-                                  height: 5,
-                                ),
-                                Text(
-                                  "03:00 PM • After Eating",
-                                  style: TextStyle(color: Colors.grey),
-                                ),
-                              ],
-                            ),
-                            Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(6),
-                                color: Color.fromARGB(255, 225, 244, 253),
+                        child: Padding(
+                          padding: const EdgeInsets.only(
+                              left: 20, right: 20, top: 20),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Hello, Shubham!',
+                                    style: TextStyle(
+                                        fontSize: 25,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                  SizedBox(
+                                    height: 5,
+                                  ),
+                                  Text(
+                                    'How are you feeling today?',
+                                    style: TextStyle(
+                                        color: Colors.grey, fontSize: 15),
+                                  ),
+                                ],
                               ),
-                              height: 32,
-                              width: 32,
-                              child: Icon(
-                                Icons.arrow_forward_ios,
+                              CircleAvatar(
+                                backgroundImage:
+                                    AssetImage('assets/images/shubham.jpg'),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    Container(
+                      color: Colors.white,
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 20, bottom: 20),
+                        child: Container(
+                          color: Colors.white,
+                          height: 220,
+                          child: PageView.builder(
+                              controller: pageController,
+                              itemCount: 2,
+                              itemBuilder: (context, position) {
+                                return _buildPageItem(position);
+                              }),
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 15,
+                    ),
+                    Padding(
+                      padding:
+                          const EdgeInsets.only(left: 20, top: 10, bottom: 15),
+                      child: Text(
+                        "How can we help you?",
+                        style: TextStyle(
+                            fontSize: 22, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    Row(
+                      children: [
+                        Container(
+                          margin: EdgeInsets.only(left: 20),
+                          height: 110,
+                          width: 110,
+                          decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(15)),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.document_scanner_outlined,
+                                size: 30,
                                 color: Colors.blue,
                               ),
-                            ),
-                          ],
+                              SizedBox(
+                                height: 5,
+                              ),
+                              Text(
+                                'Scan',
+                                style: TextStyle(color: Colors.blue),
+                              ),
+                              Text(
+                                'prescription',
+                                style: TextStyle(color: Colors.blue),
+                              ),
+                            ],
+                          ),
                         ),
+                        Container(
+                          margin: EdgeInsets.only(left: 20),
+                          height: 110,
+                          width: 110,
+                          decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(15)),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.list,
+                                size: 30,
+                                color: Colors.blue,
+                              ),
+                              SizedBox(
+                                height: 5,
+                              ),
+                              Text(
+                                'View',
+                                style: TextStyle(color: Colors.blue),
+                              ),
+                              Text(
+                                'prescription',
+                                style: TextStyle(color: Colors.blue),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          margin: EdgeInsets.only(left: 20),
+                          height: 110,
+                          width: 110,
+                          decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(15)),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.person_outline_outlined,
+                                size: 30,
+                                color: Colors.blue,
+                              ),
+                              SizedBox(
+                                height: 5,
+                              ),
+                              Text(
+                                'Your',
+                                style: TextStyle(color: Colors.blue),
+                              ),
+                              Text(
+                                'profile',
+                                style: TextStyle(color: Colors.blue),
+                              ),
+                            ],
+                          ),
+                        )
+                      ],
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(
+                          left: 20, top: 20, bottom: 15, right: 20),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "For today",
+                            style: TextStyle(
+                                fontSize: 22, fontWeight: FontWeight.bold),
+                          ),
+                          Text('View all',
+                              style: TextStyle(
+                                fontSize: 16,
+                              )),
+                        ],
                       ),
                     ),
-                  )
-                  // new DotsIndicator(
-                  //   dotsCount: 4,
-                  //   position: _currPageValue,
-                  //   decorator: DotsDecorator(
-                  //     color: Colors.grey, // Inactive color
-                  //     activeColor: primaryColor,
-                  //   ),
-                  // ),
-                ],
+                    Padding(
+                      padding: const EdgeInsets.only(left: 20, right: 20),
+                      child: Container(
+                        decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(15)),
+                        height: 100,
+                        width: 400,
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 10, right: 10),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Image.asset(
+                                'assets/images/pill.jpg',
+                                height: 100,
+                              ),
+                              Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "Crocin 650",
+                                    style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                  SizedBox(
+                                    height: 5,
+                                  ),
+                                  Text(
+                                    "03:00 PM • After Eating",
+                                    style: TextStyle(color: Colors.grey),
+                                  ),
+                                ],
+                              ),
+                              Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(6),
+                                  color: Color.fromARGB(255, 225, 244, 253),
+                                ),
+                                height: 32,
+                                width: 32,
+                                child: Icon(
+                                  Icons.arrow_forward_ios,
+                                  color: Colors.blue,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    )
+                    // new DotsIndicator(
+                    //   dotsCount: 4,
+                    //   position: _currPageValue,
+                    //   decorator: DotsDecorator(
+                    //     color: Colors.grey, // Inactive color
+                    //     activeColor: primaryColor,
+                    //   ),
+                    // ),
+                  ],
+                ),
               ),
             )
           : isScan
@@ -699,79 +713,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 )
               : isPrescription
-                  ? Visibility(
-                      child: Container(
-                        color: Colors.white,
-                        child: FutureBuilder(
-                          // future: _initializeControllerFuture,
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState ==
-                                ConnectionState.done) {
-                              final size = MediaQuery.of(context).size;
-                              final deviceRatio = size.width / size.height;
-                              return Column(
-                                children: <Widget>[
-                                  Container(
-                                    color: Colors.white,
-                                    height: 80.0,
-                                    child: Center(
-                                      child: Text(
-                                        'Place a prescription in front of the camera',
-                                        style: TextStyle(
-                                          color: Colors.black,
-                                          fontWeight: FontWeight.w600,
-                                          fontSize: 18.0,
-                                        ),
-                                        softWrap: true,
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: Stack(
-                                      children: [
-                                        Center(
-                                            // child: _isLoading
-                                            //     ? SizedBox()
-                                            //     : CameraPreview(controller),
-                                            ),
-                                        Align(
-                                          alignment: Alignment.bottomCenter,
-                                          child:
-                                              // _isLoading
-                                              // ?
-                                              // Padding(
-                                              //     padding: const EdgeInsets.all(20.0),
-                                              //     child: CircularProgressIndicator(),
-                                              //   )
-                                              // :
-                                              IconButton(
-                                            icon: Icon(
-                                              Icons.camera,
-                                              color: Colors.white,
-                                            ),
-                                            iconSize: 70.0,
-                                            padding: EdgeInsets.symmetric(
-                                                vertical: 20.0),
-                                            onPressed: () async {
-                                              // captureImage(context);
-                                            },
-                                          ),
-                                        )
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              );
-                            } else {
-                              return Center(
-                                child: CircularProgressIndicator(),
-                              );
-                            }
-                          },
-                        ),
-                      ),
-                    )
+                  ? Visibility(child: Text(datas[0].ScannedText))
                   : isProfile
                       ? Visibility(
                           child: Center(
