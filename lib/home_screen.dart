@@ -18,6 +18,7 @@ import 'package:pharmchem/DataModel.dart';
 import 'package:pharmchem/components/navbar.dart';
 import 'package:pharmchem/constants.dart';
 import 'package:pharmchem/database.dart';
+import 'package:pharmchem/qrFile.dart';
 import 'package:pharmchem/scanResult_screen.dart';
 import 'package:pharmchem/scanning_screen.dart';
 import 'package:http/http.dart' as http;
@@ -28,6 +29,160 @@ class ScannedText {
   static String predictedText = '';
   static String bas64Img = '';
   static late File cropppedImg;
+}
+
+class PrepopulatedData {
+  static List symptomsLst = [
+    'Itching',
+    'Vomiting',
+    'Fever',
+    'Diarrhea',
+    'Headache',
+    'Mouth Ulcer',
+    'Skin',
+    'Stomach',
+    'Abdominal Cramps',
+    'Constipation',
+    'Fatigue',
+    'Lower Back',
+    'Nausea',
+    'Chills',
+    'Cough',
+    'Cold',
+    'Sore Throat',
+    'Ache',
+    'Acne',
+    'Pain',
+    'Head',
+    'Dizziness',
+    'Abdominal',
+    'Blood',
+    'Bleed',
+    'Bleeding',
+    'Foot',
+    'Feet',
+    'Swelling',
+    'Back',
+    'Neck',
+    'Pelvic',
+    'Throat',
+    'Ear',
+    'Eye',
+    'Joint',
+    'Nose',
+    'Food',
+    'Chest',
+    'Knee',
+    'Stomach',
+    'Shoulder',
+    'Finger',
+    'Face',
+    'Elbow',
+    'Ankle',
+    'Tooth',
+    'Leg',
+    'Hair',
+    'Tongue',
+    'Mouth'
+  ];
+
+  static List medicineLst = [
+    'neopeptin',
+    'folin',
+    'vomisave',
+    'liv 52',
+    'supravital b12',
+    'duphalac',
+    'dioset',
+    'linical lotion',
+    'ibujesic plus',
+    'clavrest ds',
+    'levocet',
+    'moucer',
+    'topcef',
+    'alibac sachet',
+    'flexon',
+    'tormoxin clav',
+    'cofband dx',
+    'mondeo lc',
+    'duolin',
+    'ondem',
+    'meftal spas',
+    'clavmentin duo',
+    'zincolife',
+    'valamin',
+    'crocin',
+    'paracetamol',
+    'azithromycin',
+    'metacin',
+    'saridon',
+    'dolo',
+    'amoxicillin',
+    'Remdesivir',
+    'benadryl',
+    'penicillin',
+    'cloaxicillin',
+    'erythromycin',
+    'clarithromycin',
+    'combiflam',
+    'norflox',
+    'digene',
+    'sinarest',
+    'ciplox',
+    'cetrizine',
+    'soframycin',
+    'salbutamol',
+    'diclofenac',
+    'omeprazole',
+    'domperidone',
+    'albendazole'
+  ];
+
+  static String result = ScannedText.predictedText;
+  // static String result =
+  //     "Karm Children Hospital\nકર્મ બાળકોની હોસ્પિટલ\nA/17, Shanti Park Society, Opp.\nSmrutimandir, Ghodasar, Ahmedabad.\nMo.: 9662145439, 9662420990\nclo \n-Pain in Abdomen\n- Vomiting\nfever \n-\nyuvika Rathod\n0\nOlE\nJellow Selesa,\nDr. Bhaumik J. Shah\n(M.B, D.C.H)\nPediatritian & Neonatologist\n12/8123\nDvira hepatitis\nAdu \n-SJP Vomisave\nSom For Vorn't.\nSJP Diset\nSon 8 Pain in Abd \n-S₂P Liv 52\n5 BD xlsa,, \n-SP Duphalae\nTome His xlod. \n-S1P Supravital B12\n2.5m BD x 182";
+  static List resultLst = [];
+
+  static List resMed = [];
+  static List resSym = [];
+}
+
+void searchResult() {
+  PrepopulatedData.resultLst = PrepopulatedData.result.split("\n");
+  // PrepopulatedData.resSym = [];
+  // PrepopulatedData.resMed = [];
+
+  for (int cntr1 = 0; cntr1 < PrepopulatedData.resultLst.length; cntr1++) {
+    String word = PrepopulatedData.resultLst[cntr1];
+
+    for (int cntr2 = 0; cntr2 < PrepopulatedData.symptomsLst.length; cntr2++) {
+      if (word
+          .toLowerCase()
+          .contains(PrepopulatedData.symptomsLst[cntr2].toLowerCase())) {
+        if (!PrepopulatedData.resSym.contains(word)) {
+          PrepopulatedData.resSym.add(word);
+        }
+      }
+    }
+
+    for (int cntr3 = 0; cntr3 < PrepopulatedData.medicineLst.length; cntr3++) {
+      if (word
+          .toLowerCase()
+          .contains(PrepopulatedData.medicineLst[cntr3].toLowerCase())) {
+        for (int cntr4 = 0; cntr4 < PrepopulatedData.resSym.length; cntr4++) {
+          if (PrepopulatedData.resSym[cntr4].contains(word.toLowerCase())) {
+            continue;
+          }
+        }
+
+        if (!PrepopulatedData.resMed.contains(word)) {
+          PrepopulatedData.resMed.add(word);
+        }
+      }
+    }
+  }
+  print(PrepopulatedData.resSym);
+  print(PrepopulatedData.resMed);
 }
 
 class HomeScreen extends StatefulWidget {
@@ -121,7 +276,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   var finaltext = '';
   Future sendImage(String img) async {
-    var url = Uri.parse("http://192.168.188.213:8000/getImage");
+    // var url = Uri.parse("http://192.168.188.213:8000/getImage");
+    var url = Uri.parse("http://172.17.4.175:8000/main");
     var strImg = img;
     var data = {
       "image": strImg,
@@ -132,18 +288,25 @@ class _HomeScreenState extends State<HomeScreen> {
     if (response.statusCode == 200) {
       // If the server did return a 200 OK response,
       // then parse the JSON.
+
+      // Map<String, dynamic> json = jsonDecode(response.body);
       final jsonOP = json.decode(response.body);
       finaltext = jsonOP["text"];
+      // List result = json["text"];
+      // for (var i = 0; i < result.length; i++) {
+      //   finaltext = finaltext + result[i] + "\n";
+      // }
       // ScannedText finaltext1 = new ScannedText();
       ScannedText.predictedText = finaltext;
       // finalresponse = jsonDecode(finaltext);
 
       // = Album.fromJson(jsonDecode(response.body)) as String;
+      // searchResult();
       setState(() {
         Navigator.push(
             next,
             MaterialPageRoute(
-              builder: (context) => const scanResult(),
+              builder: (context) => const qrFile(),
             ));
       });
 
@@ -591,6 +754,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 width: double.infinity,
                                 child: ElevatedButton(
                                   onPressed: () {
+                                    next = context;
                                     getImage(ImageSource.camera);
                                   },
                                   style: TextButton.styleFrom(
@@ -606,6 +770,15 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                               ),
                             ),
+                            // ElevatedButton(
+                            //     onPressed: () {
+                            //       Navigator.push(
+                            //           context,
+                            //           MaterialPageRoute(
+                            //             builder: (context) => scanResult(),
+                            //           ));
+                            //     },
+                            //     child: Text("Let's Goooo")),
                             // Container(
                             //   margin: const EdgeInsets.symmetric(horizontal: 5),
                             //   padding: const EdgeInsets.only(top: 20),

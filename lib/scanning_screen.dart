@@ -10,6 +10,9 @@ import 'package:image_picker/image_picker.dart';
 import 'package:pharmchem/components/navbar.dart';
 import 'package:pharmchem/constants.dart';
 import 'package:pharmchem/home_screen.dart';
+import 'package:qr/qr.dart';
+
+import 'package:qr_flutter/qr_flutter.dart';
 
 class ScanScreen extends StatefulWidget {
   const ScanScreen({Key? key}) : super(key: key);
@@ -172,7 +175,7 @@ class _ScanScreenState extends State<ScanScreen> {
                   scannedText,
                   style: TextStyle(fontSize: 16),
                 ),
-              )
+              ),
             ],
           ),
         ),
